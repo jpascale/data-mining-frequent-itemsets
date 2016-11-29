@@ -53,10 +53,12 @@ class ItemSet(object):
 				if line == '':
 						break
 
-				transaction = line.strip().split()
+				transaction = set(line.strip().split())
 				
 				for key_tuple in self.k_dict.keys():
-					
+					if transaction.issuperset(key_tuple):
+						self.k_dict[key_tuple] = self.k_dict[key_tuple] + 1
+					"""
 					key_in_transaction = True
 					for individual_key in key_tuple:
 						if not individual_key in transaction:
@@ -65,6 +67,7 @@ class ItemSet(object):
 
 					if key_in_transaction:
 						self.k_dict[key_tuple] = self.k_dict[key_tuple] + 1
+					"""
 				index += 1
 			print "__read_k_dict__ finished"
 			print self.k_dict.values()
