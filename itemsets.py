@@ -1,4 +1,5 @@
 import itertools
+import time
 
 class ItemSet(object):
 
@@ -101,19 +102,58 @@ class ItemSet(object):
 			return self.dict
 
 		for i in range(k + 1)[2:]: #Only possible to make it from 2 and on
-			print "Processing (k = " + str(i) + ")"
-			print "Generating empty dictionary (k = " + str(i) + ")"
+			print "DEBUG> Processing (k = " + str(i) + ")"
+			print "DEBUG> Generating empty dictionary (k = " + str(i) + ")"
 			self.__generate_k_empty_dict__(i)
 			
-			print "Filling the dict (k = " + str(i) + ")"
+			print "DEBUG> Filling the dict (k = " + str(i) + ")"
 			self.__read_k_dict__(i)
 			
-			print "Applying threshold (k = " + str(i) + ")"
+			print "DEBUG> Applying threshold (k = " + str(i) + ")"
 			self.__apply_k_threshold__()
 			
-			print "Updating original dict (k = " + str(i) + ")"
+			print "DEBUG> Updating original dict (k = " + str(i) + ")"
 			self.__update_original_dict__()
 			
 			print "Done\n"
 
 		return self.k_dict
+
+
+if __name__ == '__main__':
+	
+	print "Test1: threshold s = 600 and k = 3"
+	t = time.time()
+	a = ItemSet("data.dat", 600, 3)
+	a_dict = a.get_k_dict()
+	print("Time to perform operation: %s seconds" %  (time.time() - t))
+
+	for k, v in a_dict.iteritems():
+		print str(k) + ": with support " + str(v)
+	
+ 	print "________________________________"
+
+	print "Test2: threshold s = 1000 and k = 2"
+	t = time.time()
+	a = ItemSet("data.dat", 1000, 2)
+	a_dict = a.get_k_dict()
+	print("Time to perform operation: %s seconds" %  (time.time() - t))
+	
+	for k, v in a_dict.iteritems():
+		print str(k) + ": with support " + str(v)
+		
+	print "________________________________"
+
+	print "Test3: threshold s = 3000 and k = 1"
+	t = time.time()
+	a = ItemSet("data.dat", 3000, 1)
+	a_dict = a.get_k_dict()
+	print("Time to perform operation: %s seconds" %  (time.time() - t))
+
+	for k, v in a_dict.iteritems():
+		print str(k) + ": with support " + str(v)
+
+
+
+
+
