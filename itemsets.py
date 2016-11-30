@@ -38,8 +38,8 @@ class ItemSet(object):
 				del(self.dict[item])
 
 	def __generate_k_empty_dict__(self, k):
-		self.k_dict = dict.fromkeys(set(itertools.combinations(self.dict.keys(), k)), 0)
-
+		self.k_dict = dict.fromkeys(set(itertools.combinations(self.dict, k)), 0)
+	'''
 	#try to optimize
 	def __OLD_read_k_dict__(self):
 		print "llegue hasta aca"
@@ -63,17 +63,12 @@ class ItemSet(object):
 			print "__read_k_dict__ finished"
 			print self.k_dict.values()
 			print("--- %s seconds ---" % (time.time() - start_time))
+	'''
 
 	##new version
 	def __read_k_dict__(self, curr_k):
-		print "llegue hasta aca"
-		import time
-		start_time = time.time()
-		################################################
 		with open(self.filename, 'r') as fd:
-			index = 1
 			while True:
-				print "iteration " + str(index)
 				line = fd.readline()
 				if line == '':
 						break
@@ -82,16 +77,6 @@ class ItemSet(object):
 				for elem in transaction:
 					if elem in self.k_dict:
 						self.k_dict[elem] = self.k_dict[elem] + 1
-				"""
-				for key_tuple in self.k_dict.keys():
-					if key_tuple in transaction:
-						self.k_dict[key_tuple] = self.k_dict[key_tuple] + 1
-				"""
-				index += 1
-		################################################
-		print "__read_k_dict__ finished"
-		print self.k_dict.values()
-		print("--- %s seconds ---" % (time.time() - start_time))
 
 	def __apply_k_threshold__(self):
 		#We kill every item that is lower than the threshold
@@ -116,19 +101,19 @@ class ItemSet(object):
 			return self.dict
 
 		for i in range(k + 1)[2:]: #Only possible to make it from 2 and on
-			print "Processing for k = " + str(i)
-			print "Generating empty dict"
+			print "Processing (k = " + str(i) + ")"
+			print "Generating empty dictionary (k = " + str(i) + ")"
 			self.__generate_k_empty_dict__(i)
-			print "Filling the dict"
+			
+			print "Filling the dict (k = " + str(i) + ")"
 			self.__read_k_dict__(i)
-			print "Applying threshold"
+			
+			print "Applying threshold (k = " + str(i) + ")"
 			self.__apply_k_threshold__()
-			print "Done"
-			print self.k_dict
-			print "updating original dict"
+			
+			print "Updating original dict (k = " + str(i) + ")"
 			self.__update_original_dict__()
-			print self.dict
-			print len(self.dict)
-			print "Done"
+			
+			print "Done\n"
 
 		return self.k_dict
