@@ -38,10 +38,10 @@ class ItemSet(object):
 				del(self.dict[item])
 
 	def __generate_k_empty_dict__(self, k):
-		self.k_dict = dict.fromkeys(set(itertools.combinations(self.dict, k)), 0)
+		self.k_dict = dict.fromkeys(set(itertools.combinations(self.dict.keys(), k)), 0)
 
 	#try to optimize
-	def __read_k_dict__(self):
+	def __OLD_read_k_dict__(self):
 		print "llegue hasta aca"
 		import time
 		start_time = time.time()
@@ -58,22 +58,40 @@ class ItemSet(object):
 				for key_tuple in self.k_dict.keys():
 					if transaction.issuperset(key_tuple):
 						self.k_dict[key_tuple] = self.k_dict[key_tuple] + 1
-					"""
-					key_in_transaction = True
-					for individual_key in key_tuple:
-						if not individual_key in transaction:
-							key_in_transaction = False
-							break
 
-					if key_in_transaction:
-						self.k_dict[key_tuple] = self.k_dict[key_tuple] + 1
-					"""
 				index += 1
 			print "__read_k_dict__ finished"
 			print self.k_dict.values()
 			print("--- %s seconds ---" % (time.time() - start_time))
+
+	##new version
+	def __read_k_dict__(self, curr_k):
+		print "llegue hasta aca"
+		import time
+		start_time = time.time()
+		################################################
+		with open(self.filename, 'r') as fd:
+			index = 1
 			while True:
-				pass
+				print "iteration " + str(index)
+				line = fd.readline()
+				if line == '':
+						break
+
+				transaction = set(itertools.combinations(line.strip().split(), curr_k))
+				for elem in transaction:
+					if elem in self.k_dict:
+						self.k_dict[elem] = self.k_dict[elem] + 1
+				"""
+				for key_tuple in self.k_dict.keys():
+					if key_tuple in transaction:
+						self.k_dict[key_tuple] = self.k_dict[key_tuple] + 1
+				"""
+				index += 1
+		################################################
+		print "__read_k_dict__ finished"
+		print self.k_dict.values()
+		print("--- %s seconds ---" % (time.time() - start_time))
 
 	def __apply_k_threshold__(self):
 		#We kill every item that is lower than the threshold
@@ -82,14 +100,10 @@ class ItemSet(object):
 				del(self.k_dict[item])
 
 	def __update_original_dict__(self):
-		for key in self.dict:
-			found = False
-			for tuple_key in self.k_dict:
-				for k_key in tuple_key:
-					if key == k_key:
-						found = True
-						break
-			if not found:
+		allowed_keys = set([x for a in self.k_dict.keys() for x in a])
+
+		for key in self.dict.keys():
+			if not key in allowed_keys:
 				del(self.dict[key])
 
 
@@ -102,9 +116,19 @@ class ItemSet(object):
 			return self.dict
 
 		for i in range(k + 1)[2:]: #Only possible to make it from 2 and on
+			print "Processing for k = " + str(i)
+			print "Generating empty dict"
 			self.__generate_k_empty_dict__(i)
-			self.__read_k_dict__()
+			print "Filling the dict"
+			self.__read_k_dict__(i)
+			print "Applying threshold"
 			self.__apply_k_threshold__()
-			self.__update_original_dict__(self)
+			print "Done"
+			print self.k_dict
+			print "updating original dict"
+			self.__update_original_dict__()
+			print self.dict
+			print len(self.dict)
+			print "Done"
 
 		return self.k_dict
